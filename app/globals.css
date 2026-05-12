@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Warm editorial palette */
+  --color-bg: #FAF8F5;
+  --color-bg-soft: #F2EEE7;
+  --color-ink: #1F1F1F;
+  --color-ink-soft: #4A4742;
+  --color-mute: #8A857C;
+  --color-line: #E5DFD4;
+  --color-accent: #7C7460;
+
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-cormorant);
+  --font-display: var(--font-archivo-black);
+
+  /* Editorial type scale */
+  --text-display: 9rem;
+  --text-display--line-height: 0.95;
+  --text-display--letter-spacing: -0.02em;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display & serif utilities */
+.font-display {
+  font-family: var(--font-archivo-black), Impact, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-serif {
+  font-family: var(--font-cormorant), Georgia, serif;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-ink);
+  color: var(--color-bg);
+}
+
+/* Focus rings */
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Scroll reveal */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise 0.9s cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+
+/* Hide horizontal scrollbar (used by the Flickr carousel) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Image hover scale (parent must have overflow-hidden) */
+.img-hover {
+  transition: transform 700ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+.group:hover .img-hover {
+  transform: scale(1.04);
+}
+
+/* Portable text typography defaults */
+.prose-editorial {
+  max-width: 68ch;
+}
+.prose-editorial p {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  margin-bottom: 1.25em;
+  color: var(--color-ink-soft);
+}
+.prose-editorial h2 {
+  font-family: var(--font-archivo-black), Impact, sans-serif;
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+  margin: 2.5em 0 0.75em;
+  color: var(--color-ink);
+}
+.prose-editorial h3 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 1.625rem;
+  margin: 2em 0 0.5em;
+  color: var(--color-ink);
+}
+.prose-editorial blockquote {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1.4;
+  border-left: 2px solid var(--color-ink);
+  padding-left: 1.5rem;
+  margin: 2em 0;
+  color: var(--color-ink);
+}
+.prose-editorial a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.prose-editorial ul, .prose-editorial ol {
+  margin: 1.25em 0;
+  padding-left: 1.5rem;
+  color: var(--color-ink-soft);
+}
+.prose-editorial li { margin-bottom: 0.4em; }
+.prose-editorial code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  background: var(--color-bg-soft);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
