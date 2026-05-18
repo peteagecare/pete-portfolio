@@ -7,20 +7,41 @@ import type { ProjectSummary } from "@/sanity/types";
 
 const FILTERS = [
   { value: "all", label: "All" },
-  { value: "photo", label: "Photography" },
+  { value: "social", label: "Social" },
   { value: "video", label: "Videography" },
-  { value: "web", label: "Web" },
+  { value: "photo", label: "Photography" },
   { value: "design", label: "Design" },
+  { value: "web", label: "Web" },
 ] as const;
 
 type FilterValue = (typeof FILTERS)[number]["value"];
 
+const VALID_FILTERS = new Set<string>(FILTERS.map((f) => f.value));
+
+function parseFilter(raw: string | undefined): FilterValue {
+  if (raw && VALID_FILTERS.has(raw)) return raw as FilterValue;
+  return "all";
+}
+
 export default function PortfolioFilter({
   projects,
+  initialCategory,
 }: {
   projects: ProjectSummary[];
+  initialCategory?: string;
 }) {
-  const [filter, setFilter] = useState<FilterValue>("all");
+  const [filter, setFilter] = useState<FilterValue>(() =>
+    parseFilter(initialCategory),
+  );
+
+  const updateFilter = (next: FilterValue) => {
+    setFilter(next);
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (next === "all") url.searchParams.delete("category");
+    else url.searchParams.set("category", next);
+    window.history.replaceState({}, "", url.toString());
+  };
 
   const filtered = useMemo(
     () =>
@@ -30,13 +51,19 @@ export default function PortfolioFilter({
     [filter, projects]
   );
 
+  const isSocialGrid = filter === "social";
+  const gridClass = isSocialGrid
+    ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10 md:gap-y-12"
+    : "columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-x-6";
+  const itemClass = isSocialGrid ? undefined : "break-inside-avoid mb-10 md:mb-12";
+
   return (
     <div>
       <div className="flex flex-wrap gap-x-8 gap-y-3 mb-12 border-b border-[var(--color-line)] pb-6">
         {FILTERS.map((f) => (
           <button
             key={f.value}
-            onClick={() => setFilter(f.value)}
+            onClick={() => updateFilter(f.value)}
             className={clsx(
               "text-[0.7rem] tracking-[0.22em] uppercase transition-colors",
               filter === f.value
@@ -49,13 +76,14 @@ export default function PortfolioFilter({
         ))}
       </div>
 
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 md:gap-y-12">
+      <ul className={gridClass}>
         {filtered.map((p, i) => (
-          <li key={p._id}>
+          <li key={p._id} className={itemClass}>
             <UniformProjectCard
               project={p}
               priority={i < 3}
               showCategory={filter === "all"}
+              orientationOverride={isSocialGrid ? "portrait" : undefined}
             />
           </li>
         ))}

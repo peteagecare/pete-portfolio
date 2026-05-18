@@ -29,14 +29,15 @@ const archivoBlack = Archivo_Black({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://petejenkins.uk"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://petejenkins.co.uk"
   ),
   title: {
-    default: "Pete Jenkins — Photographer, Filmmaker, Web Developer",
+    default:
+      "Pete Jenkins — Social Content Creative · Video · Photo · Motion",
     template: "%s — Pete Jenkins",
   },
   description:
-    "Pete Jenkins is a Nottingham-based creative working across photography, video and the web.",
+    "Pete Jenkins is a Nottingham-based creative working across social-first video, photography, motion and design.",
   openGraph: {
     type: "website",
     locale: "en_GB",

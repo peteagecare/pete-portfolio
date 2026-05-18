@@ -1,12 +1,20 @@
 import Link from "next/link";
+import clsx from "clsx";
 import SanityImage from "./SanityImage";
-import type { ProjectSummary } from "@/sanity/types";
+import type { ProjectSummary, ThumbnailOrientation } from "@/sanity/types";
 
 const CATEGORY_LABEL: Record<string, string> = {
+  social: "Social",
   photo: "Photography",
   video: "Videography",
   web: "Web",
   design: "Design",
+};
+
+const ASPECT_CLASS: Record<ThumbnailOrientation, string> = {
+  landscape: "aspect-[16/9]",
+  portrait: "aspect-[9/16]",
+  square: "aspect-square",
 };
 
 export default function UniformProjectCard({
@@ -14,16 +22,27 @@ export default function UniformProjectCard({
   priority = false,
   sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
   showCategory = false,
+  orientationOverride,
 }: {
   project: ProjectSummary;
   priority?: boolean;
   sizes?: string;
   /** Show category label under the title (useful when grid mixes categories). */
   showCategory?: boolean;
+  /** Force a specific thumbnail aspect (e.g. when the parent grid is single-orientation). */
+  orientationOverride?: ThumbnailOrientation;
 }) {
+  const orientation: ThumbnailOrientation =
+    orientationOverride ?? project.thumbnailOrientation ?? "landscape";
+
   return (
     <Link href={`/portfolio/${project.slug}`} className="group block">
-      <div className="relative aspect-[16/9] overflow-hidden bg-[var(--color-bg-soft)]">
+      <div
+        className={clsx(
+          "relative overflow-hidden bg-[var(--color-bg-soft)]",
+          ASPECT_CLASS[orientation],
+        )}
+      >
         <SanityImage
           image={project.coverImage}
           sizes={sizes}

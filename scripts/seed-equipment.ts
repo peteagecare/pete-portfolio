@@ -33,7 +33,7 @@ const items: Array<{
     brand: "Sony",
     category: "camera",
     description:
-      "Full-frame workhorse — stills, video, almost everything paid. The body the rest of the kit revolves around.",
+      "Full-frame workhorse. Stills, video, almost everything paid. The body the rest of the kit revolves around.",
     order: 1,
   },
   {
@@ -42,7 +42,7 @@ const items: Array<{
     brand: "Sony",
     category: "camera",
     description:
-      "APS-C B-cam and travel body. Fast AF, lighter for handheld days and second-angle coverage on shoots.",
+      "APS-C B-cam and travel body. Fast autofocus, light enough to hold for a full day. Picks up the second angle on bigger shoots and goes most places I take a camera.",
     order: 2,
   },
 
@@ -52,7 +52,7 @@ const items: Array<{
     brand: "Sigma",
     category: "lens",
     description:
-      "The do-everything zoom. Lives on the A7V — events, portraits, brand work, anything where I'd otherwise rotate three primes.",
+      "The do-everything zoom. Lives on the A7 V. Events, portraits, brand work, anything where I'd otherwise rotate three primes.",
     order: 1,
   },
   {
@@ -61,7 +61,7 @@ const items: Array<{
     brand: "Sony",
     category: "lens",
     description:
-      "Wide full-frame prime. Interiors, environmental portraits, and the occasional run-and-gun video where small + fast wins.",
+      "Wide full-frame prime. Interiors, environmental portraits, the occasional run-and-gun video where small and fast wins.",
     order: 2,
   },
   {
@@ -70,7 +70,7 @@ const items: Array<{
     brand: "Sigma",
     category: "lens",
     description:
-      "APS-C standard zoom for the A6700 — equivalent to a 27-75 on full-frame. Light, sharp, my walk-around for travel.",
+      "APS-C standard zoom for the A6700. Roughly a 27-75 on full-frame. Light, sharp, my walk-around for travel.",
     order: 3,
   },
   {
@@ -79,7 +79,7 @@ const items: Array<{
     brand: "Sigma",
     category: "lens",
     description:
-      "APS-C ultra-wide for the A6700. Tight interiors, architecture, vlog-style B-roll where the 16mm isn't quite wide enough.",
+      "APS-C ultra-wide for the A6700. Tight interiors, architecture, vlog-style B-roll where the 16mm isn't wide enough.",
     order: 4,
   },
 
@@ -90,7 +90,7 @@ const items: Array<{
     category: "support",
     quantity: 2,
     description:
-      "Pair of light carbon-style tripods — one for stills, one for B-cam or audio. Simple, reliable, packs small.",
+      "A pair of light carbon-style tripods. One for stills, one for B-cam or audio. Simple, reliable, packs small.",
     order: 1,
   },
   {
@@ -99,7 +99,7 @@ const items: Array<{
     brand: "DJI",
     category: "support",
     description:
-      "Three-axis stabiliser for video work. Fast switching between camera/lens combos, automated locks for setup.",
+      "Three-axis stabiliser for video work. Fast switching between camera and lens combos, automated locks make setup quick.",
     order: 2,
   },
 ];

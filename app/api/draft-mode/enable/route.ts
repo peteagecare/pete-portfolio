@@ -30,7 +30,5 @@ export async function GET(req: Request) {
   const draft = await draftMode();
   draft.enable();
 
-  const path =
-    type === "journalPost" ? `/journal/${slug}` : `/portfolio/${slug}`;
-  redirect(path);
+  redirect(`/portfolio/${slug}`);
 }

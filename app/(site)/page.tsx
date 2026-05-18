@@ -8,6 +8,7 @@ import {
   equipmentByCategoryQuery,
   cvProjectsQuery,
   allSoftwareQuery,
+  allEducationQuery,
 } from "@/sanity/queries";
 import type {
   SiteSettings,
@@ -15,10 +16,13 @@ import type {
   EquipmentByCategory,
   EquipmentCategory,
   Software,
+  Education,
 } from "@/sanity/types";
+import { COMPANIES, companyDateRange } from "@/lib/experience";
 import type { SanityImage as TSanityImage } from "@/sanity/lib/image";
 
 type HomepageWork = {
+  social: ProjectSummary[];
   photo: ProjectSummary[];
   video: ProjectSummary[];
   web: ProjectSummary[];
@@ -33,12 +37,15 @@ type HeroPhotosRow = {
 import SanityImage from "@/components/SanityImage";
 import Reveal from "@/components/Reveal";
 import FlickrFeed from "@/components/FlickrFeed";
-import InstagramFeed from "@/components/InstagramFeed";
+import SocialFeed from "@/components/SocialFeed";
 import RecentProjectsCarousel from "@/components/RecentProjectsCarousel";
 import ProjectScroller from "@/components/ProjectScroller";
 import SoftwareLogo from "@/components/SoftwareLogo";
+import { softwareLogoSources } from "@/lib/softwareLogo";
 import {
   Aperture,
+  ArrowLeft,
+  ArrowUp,
   Camera,
   Code2,
   Film,
@@ -46,6 +53,7 @@ import {
   Mic,
   Package,
   PenTool,
+  Smartphone,
   Wrench,
 } from "lucide-react";
 
@@ -58,6 +66,7 @@ export default async function HomePage() {
     equipmentRaw,
     cvProjectsRaw,
     softwareRaw,
+    educationRaw,
   ] = await Promise.all([
     sanityFetch<SiteSettings | null>({
       query: siteSettingsQuery,
@@ -87,8 +96,18 @@ export default async function HomePage() {
       query: allSoftwareQuery,
       tags: ["software"],
     }),
+    sanityFetch<Education[] | null>({
+      query: allEducationQuery,
+      tags: ["education"],
+    }),
   ]);
-  const work = workRaw ?? { photo: [], video: [], web: [], design: [] };
+  const work = workRaw ?? {
+    social: [],
+    photo: [],
+    video: [],
+    web: [],
+    design: [],
+  };
   const latest = latestRaw ?? [];
   const equipment: EquipmentByCategory = equipmentRaw ?? {
     camera: [],
@@ -117,68 +136,48 @@ export default async function HomePage() {
 
   const software = softwareRaw ?? [];
   const cvProjects = cvProjectsRaw ?? [];
-  const cvStops: {
-    id: string;
-    name: string;
-    role: string;
-    period: string;
-    dotClass: string;
-  }[] = [
-    {
-      id: "age-care-bathrooms",
-      name: "Age Care Bathrooms",
-      role: "Head of Marketing",
-      period: "2023 — Present",
-      dotClass: "bg-amber-300",
-    },
-    {
-      id: "lime-tree-music-centre",
-      name: "Lime Tree Music Centre",
-      role: "Co-Director",
-      period: "2018 — Present",
-      dotClass: "bg-rose-400",
-    },
-    {
-      id: "the-musical-me",
-      name: "The Musical Me",
-      role: "Co-Director",
-      period: "2020 — 2024",
-      dotClass: "bg-sky-400",
-    },
-  ];
+  const education = educationRaw ?? [];
   // heroPhotosRaw kept for future hero variants; intentionally unused here.
   void heroPhotosRaw;
 
   const skillSections: SkillSection[] = [
     {
-      key: "design",
-      title: "Design",
+      key: "social",
+      title: "Social",
       blurb:
-        "Brand identity, layout and motion across print and digital. I handle the full stack at Age Care Bathrooms, from brochures and flyers to targeted regional campaigns and subscription mailers, and I build each piece around how it'll actually be read, posted or handed over. Typography is where I spend most of my time; everything else gets out of the way.",
-      projects: work.design,
-      href: "/portfolio?category=design",
+        "Short-form vertical is where most of my work ends up now. Reels, TikTok, shorts. I shoot on a Sony A7 V or A6700 depending on the brief, cut in Premiere Pro and add motion in After Effects when it serves the piece. The goal is the same every time: make something worth not scrolling past.",
+      projects: work.social,
+      href: "/portfolio?category=social",
+    },
+    {
+      key: "video",
+      title: "Video",
+      blurb:
+        "Brand films, TV ads, before-and-afters and customer testimonials. I helped shoot our Sky AdSmart and GB News spots, including a campaign with Brian Blessed. Switching between formats keeps it interesting and I'm always picking up new editing tricks, new lighting setups, new ways to make people stop and watch.",
+      projects: work.video,
+      href: "/portfolio?category=video",
     },
     {
       key: "photo",
-      title: "Photography",
+      title: "Photo",
       blurb:
-        "Editorial portraits, brand stills, weddings and live events, shot on my Sony A7 IV with fast primes and whatever light I'm given. The bathroom work is where I get to balance craft and commerce, all clean lines and honest light, no over-styling. The personal stuff (architecture, landscape, slow countryside walks with a camera) is what keeps my eye sharp. Same kit, two very different briefs.",
+        "Photography started as a necessity. Age Care Bathrooms needed photos and I was the one to take them. I fell in love along the way. Now I shoot bathrooms by day and whatever catches my eye at the weekend: architecture, landscapes, slow walks with a camera around Nottingham and the Peak District. Same Sony A7 V, very different briefs.",
       projects: work.photo,
       href: "/portfolio?category=photo",
     },
     {
-      key: "video",
-      title: "Videography",
+      key: "design",
+      title: "Motion & Design",
       blurb:
-        "Brand films, TV adverts, before-and-afters, music videos and short-form social. I run small crews and stay hands-on the whole way through, from first idea to final colour grade, scripting, shooting and editing the lot myself. The Age Care Bathroom Story and the 2026 TV advert are my recent flagships; the social cuts and transformation reels are what I'm churning out week to week.",
-      projects: work.video,
-      href: "/portfolio?category=video",
+        "At Age Care Bathrooms I work across print and digital. Brochures, flyers, email campaigns, regional direct mail. I'm always thinking about how a piece will actually be read, held or handed over. Motion sits alongside that: captions, lower-thirds, the short animated bits that hold a social cut together.",
+      projects: work.design,
+      href: "/portfolio?category=design",
     },
     {
       key: "web",
       title: "Web",
       blurb:
-        "Marketing sites and headless builds. I reach for WordPress when a team needs to maintain it themselves, and Next.js when I want full control over performance and bespoke functionality. Recent builds include Age Care Maintenance with a custom AI quote estimator I built from scratch, Town & Country Merchants, and the World Music Day schools site. I build them to load fast, rank well, and not need babysitting.",
+        "I taught myself web development out of necessity when the businesses I was running needed sites, and I never stopped. Somewhere along the way I picked up SEO properly, with a bit of PPC on the side, so the sites I built actually got found. These days it's WordPress when a team needs to maintain it themselves, Next.js when I want full control. Built this site, Age Care Maintenance with its custom AI quote estimator, Town & Country Merchants, and the World Music Day schools site.",
       projects: work.web,
       href: "/portfolio?category=web",
     },
@@ -222,18 +221,20 @@ export default async function HomePage() {
               Pete Jenkins.
             </h1>
             <p className="mt-5 max-w-[68ch] text-white/80 leading-relaxed text-base md:text-[1.0625rem]">
-              I&apos;m Head of Marketing at{" "}
-              <span className="text-white">Age Care Bathrooms</span>, which
-              really means I get to do a bit of everything — print, flyers,
-              films, adverts, and building the websites too. Photography&apos;s
-              the obsession I can&apos;t shake; beautiful bathrooms by day,
-              countryside shots at weekends. And when I&apos;m not behind a
-              lens or a laptop, I&apos;m teaching guitar at{" "}
-              <span className="text-white">Lime Tree Music Centre</span> in
-              Matlock, which I co-own.
+              I film, edit and shoot photos, mostly for social. Short-form,
+              vertical, the kind of thing you actually want to watch. My
+              current day job is at{" "}
+              <span className="text-white">Age Care Bathrooms</span>, where I
+              shoot and edit all the video, handle all the photography,
+              design the print media and write the website copy. I run a
+              small in-house team of four, but spend most days hands-on with
+              a camera or in Premiere Pro editing. Most of what I know I
+              learned by doing. Outside of work I co-own a music school in
+              Matlock and teach guitar. I shoot personal photography on long
+              walks around Nottingham and the Peak District.
             </p>
             <ul className="mt-6 flex flex-wrap gap-2.5">
-              {["Design", "Videographer", "Photographer", "Web Developer"].map(
+              {["Videographer", "Photographer", "Motion & Design", "Web Developer"].map(
                 (label) => (
                   <li
                     key={label}
@@ -292,43 +293,43 @@ export default async function HomePage() {
                 What I Do
               </span>
               <h2 className="font-display text-2xl md:text-3xl leading-[1.05]">
-                Four Disciplines
+                Five Disciplines
               </h2>
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5">
             {DISCIPLINES.map((d, i) => {
               const { Icon } = d;
               return (
                 <Reveal key={d.key} delay={i * 80}>
                   <Link
                     href={d.href}
-                    className="group relative block rounded-3xl bg-[#1B2447] text-white p-6 md:p-7 aspect-square overflow-hidden hover:bg-[#243066] transition-colors"
+                    className="group relative flex h-full flex-col rounded-2xl md:rounded-3xl bg-[#1B2447] text-white p-4 sm:p-5 md:p-7 overflow-hidden hover:bg-[#243066] transition-colors"
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-2">
                       <span
                         aria-hidden
-                        className="inline-flex items-center justify-center w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-white/10 text-amber-300 transition-colors group-hover:bg-amber-300 group-hover:text-[#1B2447]"
+                        className="inline-flex items-center justify-center w-9 h-9 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/10 text-amber-300 transition-colors group-hover:bg-amber-300 group-hover:text-[#1B2447] shrink-0"
                       >
                         <Icon
-                          className="w-5 h-5 md:w-6 md:h-6"
+                          className="w-4 h-4 md:w-6 md:h-6"
                           strokeWidth={2}
                         />
                       </span>
-                      <span className="font-serif italic text-amber-300/90 text-sm md:text-base mt-1">
+                      <span className="font-serif italic text-amber-300/90 text-xs md:text-base mt-1">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                     </div>
-                    <h3 className="font-display text-2xl md:text-3xl mt-4 leading-[1.05]">
+                    <h3 className="font-display text-lg sm:text-xl md:text-3xl mt-3 md:mt-4 leading-[1.1]">
                       {d.title}
                     </h3>
-                    <p className="mt-2 md:mt-3 text-sm text-white/70 leading-relaxed max-w-[26ch]">
+                    <p className="mt-2 md:mt-3 text-xs md:text-sm text-white/70 leading-relaxed pr-10 md:pr-12 pb-12 md:pb-14">
                       {d.blurb}
                     </p>
                     <span
                       aria-hidden
-                      className="absolute bottom-5 right-5 md:bottom-6 md:right-6 w-9 h-9 rounded-full border border-amber-300/60 text-amber-300 flex items-center justify-center group-hover:bg-amber-300 group-hover:text-[#1B2447] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                      className="absolute bottom-3 right-3 md:bottom-6 md:right-6 w-7 h-7 md:w-9 md:h-9 rounded-full border border-amber-300/60 text-amber-300 text-sm md:text-base flex items-center justify-center group-hover:bg-amber-300 group-hover:text-[#1B2447] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
                     >
                       ↗
                     </span>
@@ -355,7 +356,7 @@ export default async function HomePage() {
               <Reveal>
                 <div className="mb-6 md:mb-8">
                   <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-3">
-                    {String(i + 1).padStart(2, "0")} — Skill
+                    {String(i + 1).padStart(2, "0")} · Skill
                   </span>
                   <h2 className="font-display text-[clamp(2.75rem,6vw,5.5rem)] leading-[0.95]">
                     {s.title}
@@ -382,7 +383,7 @@ export default async function HomePage() {
       <section className="py-16 md:py-24 bg-[var(--color-bg-soft)] border-y border-[var(--color-line)]">
         <div className="mx-auto max-w-[1600px] px-6 md:px-10">
           <Reveal>
-            <div className="mb-10 md:mb-14 flex items-end justify-between gap-6 flex-wrap">
+            <div className="mb-6 md:mb-8 flex items-end justify-between gap-6 flex-wrap">
               <div>
                 <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-3">
                   Career
@@ -400,80 +401,136 @@ export default async function HomePage() {
             </div>
           </Reveal>
 
-          {/* Desktop: alternating horizontal timeline */}
-          <div className="hidden md:block relative">
-            <div
-              aria-hidden
-              className="absolute top-1/2 left-0 right-0 h-px bg-[var(--color-line)] -translate-y-1/2"
-            />
-            <ul className="grid grid-cols-3 gap-8">
-              {cvStops.map((stop, i) => {
-                const above = i % 2 === 0;
-                const items = cvProjects
-                  .filter((p) => p.cvCompanies?.includes(stop.id))
-                  .slice(0, 3);
-                return (
-                  <li
-                    key={stop.id}
-                    className="grid grid-rows-[1fr_auto_1fr] gap-y-3 min-h-[460px]"
-                  >
-                    <div className="flex flex-col justify-end">
-                      {above ? (
-                        <Reveal delay={i * 80}>
-                          <CvStopContent stop={stop} items={items} />
-                          <span
-                            aria-hidden
-                            className="block w-px h-6 bg-[var(--color-line)] mx-auto mt-4"
-                          />
-                        </Reveal>
-                      ) : null}
-                    </div>
-                    <div className="flex justify-center">
-                      <span
-                        aria-hidden
-                        className={`block w-4 h-4 rounded-full ${stop.dotClass} ring-[6px] ring-[var(--color-bg-soft)] relative z-10`}
-                      />
-                    </div>
-                    <div className="flex flex-col justify-start">
-                      {!above ? (
-                        <Reveal delay={i * 80}>
-                          <span
-                            aria-hidden
-                            className="block w-px h-6 bg-[var(--color-line)] mx-auto mb-4"
-                          />
-                          <CvStopContent stop={stop} items={items} />
-                        </Reveal>
-                      ) : null}
-                    </div>
+          <Reveal delay={80}>
+            <p className="mb-10 md:mb-14 max-w-[68ch] text-[var(--color-ink-soft)] leading-relaxed text-base md:text-[1.0625rem]">
+              Most of what I know came from running my own businesses, where
+              there was no one else to take the photos, cut the video, build
+              the websites or do the design. By the time I joined Age Care
+              Bathrooms I'd taught myself most of it the hard way.
+            </p>
+          </Reveal>
+
+          <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            {COMPANIES.map((company, i) => {
+              const matchIds = company.cvIds ?? [company.id];
+              const items = cvProjects
+                .filter((p) =>
+                  p.cvCompanies?.some((c) => matchIds.includes(c)),
+                )
+                .slice(0, 4);
+              const isAcb = company.id === "age-care-bathrooms";
+              return (
+                <li key={company.id} className="relative h-full">
+                  {i > 0 ? (
+                    <span
+                      aria-hidden
+                      className="hidden lg:inline-flex absolute -left-3 md:-left-4 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-7 h-7 rounded-full bg-[var(--color-bg)] border border-[var(--color-line)] text-[var(--color-mute)]"
+                    >
+                      <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+                    </span>
+                  ) : null}
+                    <Reveal delay={i * 80} className="h-full">
+                      <div className="rounded-3xl bg-[var(--color-bg)] border border-[var(--color-line)] p-6 md:p-7 h-full flex flex-col">
+                        <span className="inline-flex self-start items-center justify-center px-2 py-1 rounded-md border border-[var(--color-line)] bg-[var(--color-bg-soft)] text-[0.65rem] tracking-[0.18em] uppercase text-[var(--color-ink)] whitespace-nowrap mb-4">
+                          {companyDateRange(company)}
+                        </span>
+                        <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-3">
+                          {company.name}
+                        </p>
+                        <ul className="space-y-3 mb-5">
+                          {company.roles.map((role, roleIdx) => (
+                            <li key={role.title}>
+                              {isAcb && roleIdx === 1 ? (
+                                <div className="flex items-center gap-2 mb-3 -ml-px">
+                                  <span
+                                    aria-hidden
+                                    className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--color-bg-soft)] border border-[var(--color-line)] text-[var(--color-mute)] flex-shrink-0"
+                                  >
+                                    <ArrowUp className="w-3.5 h-3.5" strokeWidth={2} />
+                                  </span>
+                                  <span className="text-[0.6rem] tracking-[0.18em] uppercase text-[var(--color-mute)]">
+                                    Promoted from
+                                  </span>
+                                </div>
+                              ) : null}
+                              <div className="border-l-2 border-[var(--color-line)] pl-3">
+                                <h3 className="font-display text-lg md:text-xl text-[var(--color-ink)] leading-tight">
+                                  {role.title}
+                                </h3>
+                                <p className="text-[0.65rem] tracking-[0.18em] uppercase text-[var(--color-mute)] mt-0.5">
+                                  {role.start} - {role.end}
+                                </p>
+                                {role.description ? (
+                                  <p className="text-[var(--color-ink-soft)] leading-relaxed text-sm mt-2">
+                                    {role.description}
+                                  </p>
+                                ) : null}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        {items.length > 0 ? (
+                          <ul className={`grid gap-2 mt-auto ${isAcb ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2"}`}>
+                            {items.map((p) => (
+                              <li key={p._id}>
+                                <Link
+                                  href={`/portfolio/${p.slug}`}
+                                  className="group block"
+                                >
+                                  <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-[var(--color-bg-soft)] border border-[var(--color-line)]">
+                                    <SanityImage
+                                      image={p.coverImage}
+                                      sizes="160px"
+                                      className="object-cover img-hover"
+                                    />
+                                  </div>
+                                  <p className="mt-1 text-[0.7rem] leading-tight text-[var(--color-ink)] line-clamp-2">
+                                    {p.title}
+                                  </p>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </div>
+                    </Reveal>
                   </li>
                 );
               })}
-            </ul>
-          </div>
+          </ul>
 
-          {/* Mobile: stacked vertical timeline */}
-          <ol className="md:hidden relative space-y-10 pl-7">
-            <span
-              aria-hidden
-              className="absolute left-[10px] top-2 bottom-2 w-px bg-[var(--color-line)]"
-            />
-            {cvStops.map((stop, i) => {
-              const items = cvProjects
-                .filter((p) => p.cvCompanies?.includes(stop.id))
-                .slice(0, 3);
-              return (
-                <li key={stop.id} className="relative">
-                  <span
-                    aria-hidden
-                    className={`absolute -left-7 top-1.5 w-3 h-3 rounded-full ${stop.dotClass} ring-4 ring-[var(--color-bg-soft)]`}
-                  />
-                  <Reveal delay={i * 80}>
-                    <CvStopContent stop={stop} items={items} />
-                  </Reveal>
-                </li>
-              );
-            })}
-          </ol>
+          {education.length > 0 ? (
+            <Reveal>
+              <div className="mt-10 md:mt-14">
+                <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-4">
+                  Education
+                </span>
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+                  {education.map((e) => (
+                    <li
+                      key={e._id}
+                      className="rounded-2xl bg-[var(--color-bg)] border border-[var(--color-line)] p-5 md:p-6"
+                    >
+                      <span className="inline-flex items-center justify-center px-2 py-1 rounded-md border border-[var(--color-line)] bg-[var(--color-bg-soft)] text-[0.65rem] tracking-[0.18em] uppercase text-[var(--color-ink)] whitespace-nowrap mb-3">
+                        {e.endYear ? `${e.startYear} – ${e.endYear}` : `${e.startYear} – Now`}
+                      </span>
+                      <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                        {e.institution}
+                      </p>
+                      <h3 className="font-display text-lg md:text-xl text-[var(--color-ink)] leading-tight">
+                        {e.qualification}
+                      </h3>
+                      {e.description ? (
+                        <p className="text-[var(--color-ink-soft)] leading-relaxed text-sm mt-2">
+                          {e.description}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          ) : null}
         </div>
       </section>
 
@@ -613,6 +670,35 @@ export default async function HomePage() {
                         <p className="text-[0.8rem] md:text-sm text-center text-[var(--color-ink)] leading-tight font-medium">
                           {s.name}
                         </p>
+                        {s.projects && s.projects.length > 0 ? (
+                          <div className="mt-auto pt-2 w-full flex flex-col gap-1.5">
+                            <span className="text-[0.55rem] md:text-[0.6rem] tracking-[0.2em] uppercase text-[var(--color-mute)] text-center">
+                              Projects using {s.name}
+                            </span>
+                            <ul className="flex flex-col gap-1.5">
+                              {s.projects.slice(0, 3).map((p) => (
+                                <li key={p._id}>
+                                  <Link
+                                    href={`/portfolio/${p.slug}`}
+                                    title={p.title}
+                                    className="flex items-center gap-2 pr-3 pl-1 py-1 rounded-full border border-[var(--color-line)] bg-[var(--color-bg-soft)] hover:border-[var(--color-ink)] transition-colors"
+                                  >
+                                    <span className="relative w-6 h-6 rounded-full overflow-hidden border border-[var(--color-line)] flex-shrink-0">
+                                      <SanityImage
+                                        image={p.coverImage}
+                                        sizes="24px"
+                                        className="object-cover"
+                                      />
+                                    </span>
+                                    <span className="text-[0.65rem] leading-tight text-[var(--color-ink)] truncate">
+                                      {p.title}
+                                    </span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
                       </div>
                     </Reveal>
                   </li>
@@ -623,11 +709,9 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* FLICKR FEED — renders nothing if NEXT_PUBLIC_FLICKR_USER_ID isn't set */}
       <FlickrFeed count={12} />
 
-      {/* INSTAGRAM FEED — renders nothing if INSTAGRAM_ACCESS_TOKEN isn't set */}
-      <InstagramFeed count={9} />
+      <SocialFeed />
     </>
   );
 }
@@ -640,145 +724,52 @@ const DISCIPLINES: {
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
 }[] = [
   {
-    key: "design",
-    title: "Design",
+    key: "social",
+    title: "Social",
     blurb:
-      "Print, flyers and brand identity — typography-led and built to sell.",
-    href: "/portfolio?category=design",
-    Icon: PenTool,
-  },
-  {
-    key: "photo",
-    title: "Photo",
-    blurb:
-      "Editorial portraits and brand stills by day; countryside at weekends.",
-    href: "/portfolio?category=photo",
-    Icon: Camera,
+      "Reels, TikTok and shorts. Vertical, short-form, fast turnaround. I shoot on a Sony A7 V or A6700, cut in Premiere and caption in-house. The kind of thing you actually stop scrolling for.",
+    href: "/portfolio?category=social",
+    Icon: Smartphone,
   },
   {
     key: "video",
     title: "Video",
     blurb:
-      "Brand films, before-and-afters, ads and social cuts that earn their watch time.",
+      "Brand films, before-and-afters, customer testimonials, TV ads. Helped shoot our Sky AdSmart and GB News spots, including one with Brian Blessed. Premiere Pro, Sony A7 V, gimbal when the shot needs it.",
     href: "/portfolio?category=video",
     Icon: Film,
   },
   {
-    key: "web",
-    title: "Web Developer",
+    key: "photo",
+    title: "Photo",
     blurb:
-      "WordPress when it fits, Next.js when it shines — fast, considered builds.",
+      "Bathrooms by day, whatever catches my eye at the weekend. I shoot in our in-house studio (which I built from scratch) and on location. Architecture and landscapes on long walks around Nottingham and the Peak District.",
+    href: "/portfolio?category=photo",
+    Icon: Camera,
+  },
+  {
+    key: "design",
+    title: "Motion & Design",
+    blurb:
+      "Brochures, flyers, email campaigns and schools' resource packs. Captions and motion graphics for the social cuts. Typography first, everything else after that.",
+    href: "/portfolio?category=design",
+    Icon: PenTool,
+  },
+  {
+    key: "web",
+    title: "Web",
+    blurb:
+      "WordPress when a team needs to maintain it, Next.js when I want full control. Built this site, Age Care Maintenance with its AI quote tool, Town & Country Merchants, and the World Music Day schools site.",
     href: "/portfolio?category=web",
     Icon: Code2,
   },
 ];
 
 type SkillSection = {
-  key: "design" | "photo" | "video" | "web";
+  key: "social" | "design" | "photo" | "video" | "web";
   title: string;
   blurb: string;
   projects: ProjectSummary[];
   href: string;
 };
 
-const SIMPLE_ICONS_OVERRIDES: Record<string, string> = {
-  "vs code": "visualstudiocode",
-  "visual studio code": "visualstudiocode",
-  "next.js": "nextdotjs",
-  "node.js": "nodedotjs",
-  "davinci resolve": "davinciresolve",
-  "pro tools": "protools",
-  "tailwind css": "tailwindcss",
-  tailwind: "tailwindcss",
-  "google analytics": "googleanalytics",
-  "google search console": "googlesearchconsole",
-  "final cut pro": "finalcutpro",
-  "logic pro": "logicpro",
-};
-
-// Adobe and a few others were removed from Simple Icons over trademark
-// concerns. Use vectorlogo.zone as a primary source for those, with simpleicons
-// as a fallback (in case vectorlogo.zone is unreachable), and the SoftwareLogo
-// client component shows a styled letter avatar if all sources fail.
-const VECTORLOGO_OVERRIDES: Record<string, string> = {
-  "adobe photoshop": "adobe_photoshop/adobe_photoshop-icon.svg",
-  photoshop: "adobe_photoshop/adobe_photoshop-icon.svg",
-  "adobe illustrator": "adobe_illustrator/adobe_illustrator-icon.svg",
-  illustrator: "adobe_illustrator/adobe_illustrator-icon.svg",
-  "adobe lightroom": "adobe_lightroom/adobe_lightroom-icon.svg",
-  lightroom: "adobe_lightroom/adobe_lightroom-icon.svg",
-  "adobe premiere pro": "adobe_premiere/adobe_premiere-icon.svg",
-  "premiere pro": "adobe_premiere/adobe_premiere-icon.svg",
-  "adobe after effects": "adobe_after_effects/adobe_after_effects-icon.svg",
-  "after effects": "adobe_after_effects/adobe_after_effects-icon.svg",
-  "adobe indesign": "adobe_indesign/adobe_indesign-icon.svg",
-  indesign: "adobe_indesign/adobe_indesign-icon.svg",
-};
-
-function simpleIconsSlug(name: string): string {
-  const key = name.toLowerCase().trim();
-  if (SIMPLE_ICONS_OVERRIDES[key]) return SIMPLE_ICONS_OVERRIDES[key];
-  return key.replace(/[^a-z0-9]/g, "");
-}
-
-function softwareLogoSources(name: string): string[] {
-  const key = name.toLowerCase().trim();
-  const sources: string[] = [];
-  if (VECTORLOGO_OVERRIDES[key]) {
-    sources.push(`https://www.vectorlogo.zone/logos/${VECTORLOGO_OVERRIDES[key]}`);
-  }
-  sources.push(`https://cdn.simpleicons.org/${simpleIconsSlug(name)}`);
-  return sources;
-}
-
-function CvStopContent({
-  stop,
-  items,
-}: {
-  stop: {
-    id: string;
-    name: string;
-    role: string;
-    period: string;
-    dotClass: string;
-  };
-  items: ProjectSummary[];
-}) {
-  return (
-    <div>
-      <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-2">
-        {stop.period}
-      </p>
-      <h3 className="font-display text-lg md:text-xl lg:text-2xl leading-tight mb-1 break-words">
-        {stop.name}
-      </h3>
-      <p className="font-serif italic text-[var(--color-ink-soft)] text-sm mb-4">
-        {stop.role}
-      </p>
-
-      {items.length > 0 ? (
-        <ul className="flex gap-3 mt-4 overflow-x-auto -mx-1 px-1 pb-1">
-          {items.map((p) => (
-            <li
-              key={p._id}
-              className="w-[100px] md:w-[110px] lg:w-[120px] flex-shrink-0"
-            >
-              <Link href={`/portfolio/${p.slug}`} className="group block">
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[var(--color-bg)] border border-[var(--color-line)]">
-                  <SanityImage
-                    image={p.coverImage}
-                    sizes="120px"
-                    className="object-cover img-hover"
-                  />
-                </div>
-                <p className="mt-1.5 text-[0.7rem] text-[var(--color-ink)] leading-tight line-clamp-2">
-                  {p.title}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}

@@ -1,215 +1,261 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { sanityFetch } from "@/sanity/lib/fetch";
-import { cvProjectsQuery, allSoftwareQuery } from "@/sanity/queries";
-import type { ProjectSummary, Software } from "@/sanity/types";
-import SanityImage from "@/components/SanityImage";
+import {
+  cvProjectsQuery,
+  allEducationQuery,
+} from "@/sanity/queries";
+import type { Education, ProjectSummary } from "@/sanity/types";
+import RoleProjects from "@/components/RoleProjects";
+import {
+  COMPANIES,
+  flattenRoles,
+  shortYearRange,
+} from "@/lib/experience";
 
 export const metadata: Metadata = {
   title: "CV",
-  description: "Pete Jenkins — work history and roles.",
+  description:
+    "Pete Jenkins — six years across video, photography, design and web. Work history, tools and kit.",
+  openGraph: {
+    description:
+      "Pete Jenkins — six years across video, photography, design and web. Work history, tools and kit.",
+  },
 };
 
-type Role = {
-  title: string;
-  start: string;
-  end: string;
-  description?: string;
-};
-
-type Company = {
-  id: string;
-  name: string;
-  roles: Role[];
-};
-
-const COMPANIES: Company[] = [
+const TOOLS_GROUPS: { label: string; items: string[] }[] = [
   {
-    id: "age-care-bathrooms",
-    name: "Age Care Bathrooms",
-    roles: [
-      {
-        title: "Head of Marketing",
-        start: "March 2024",
-        end: "Present",
-        description:
-          "Grew the company from relying on an outside marketing agency to an in-house team of four marketers.",
-      },
-      {
-        title: "Freelance Marketing Executive",
-        start: "February 2023",
-        end: "March 2024",
-        description:
-          "Started here as a freelance marketer, working in-house alongside a marketing agency.",
-      },
-    ],
+    label: "Edit & Photo",
+    items: ["Premiere Pro", "CapCut", "Lightroom", "Photoshop", "Canva"],
   },
   {
-    id: "lime-tree-music-centre",
-    name: "Lime Tree Music Centre",
-    roles: [
-      { title: "Co-Director", start: "September 2022", end: "Present" },
-      {
-        title: "Guitar & Bass Tutor",
-        start: "September 2018",
-        end: "October 2022",
-      },
-    ],
+    label: "Cameras",
+    items: ["Sony A7 V", "Sony A6700"],
   },
   {
-    id: "the-musical-me",
-    name: "The Musical Me",
-    roles: [{ title: "Co-Director", start: "June 2020", end: "March 2024" }],
+    label: "Lenses & Support",
+    items: [
+      "Sigma 24-70mm F2.8 Art",
+      "Sigma 18-50mm F2.8 DC",
+      "Sigma 10-18mm F2.8 DC",
+      "Sony FE 16mm F1.8 G",
+      "DJI RS 3 Gimbal",
+    ],
+  },
+];
+
+const STATS: { headline: string; sublabel?: string; body: string }[] = [
+  {
+    headline: "3",
+    sublabel: "TV adverts",
+    body: "Shot or directed for national and regional broadcast",
+  },
+  {
+    headline: "7",
+    sublabel: "websites built",
+    body: "From WordPress to Next.js, design through to deployment",
+  },
+  {
+    headline: "4",
+    sublabel: "person team",
+    body: "Built and lead the in-house content team at Age Care Bathrooms",
   },
 ];
 
 export default async function CVPage() {
-  const [projects, software] = await Promise.all([
+  const [projects, education] = await Promise.all([
     sanityFetch<ProjectSummary[] | null>({
       query: cvProjectsQuery,
       tags: ["project"],
     }).then((r) => r ?? []),
-    sanityFetch<Software[] | null>({
-      query: allSoftwareQuery,
-      tags: ["software"],
+    sanityFetch<Education[] | null>({
+      query: allEducationQuery,
+      tags: ["education"],
     }).then((r) => r ?? []),
   ]);
 
+  const seenCompanies = new Set<string>();
+
+  const flatRoles = flattenRoles(COMPANIES);
+
   return (
     <>
-      <section className="pt-40 pb-16 md:pt-48 md:pb-24 mx-auto max-w-[1600px] px-6 md:px-10">
-        <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-6">
+      <section className="pt-32 pb-6 md:pt-36 md:pb-8 mx-auto max-w-[1600px] px-6 md:px-10">
+        <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-2">
           CV
         </span>
-        <h1 className="font-display text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.95] max-w-[18ch] mb-6">
-          Work
-          <br />
-          <span className="font-serif italic font-normal normal-case">
-            so far.
-          </span>
+        <h1 className="font-display text-2xl md:text-3xl leading-tight">
+          Work so far.
         </h1>
+        <p className="mt-4 max-w-[68ch] text-[var(--color-ink-soft)] leading-relaxed text-base md:text-[1.0625rem]">
+          Six years of creative work, three of them spent in-house at Age
+          Care Bathrooms making pretty much everything that goes out: vertical
+          social cuts, brand films, TV ads, photography, print and web. Most
+          of what I know I taught myself, on the job, from running my own
+          businesses before that.
+        </p>
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-24 md:pb-32 space-y-20 md:space-y-28">
-        {COMPANIES.map((company) => {
-          const companyProjects = projects.filter((p) =>
-            p.cvCompanies?.includes(company.id)
-          );
-
-          return (
-            <div key={company.id}>
-              <div className="flex items-baseline justify-between mb-8 md:mb-10 border-b border-[var(--color-line)] pb-4">
-                <h2 className="font-display text-2xl md:text-3xl">
-                  {company.name}
-                </h2>
-                <span className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)]">
-                  {company.roles.length}{" "}
-                  {company.roles.length === 1 ? "role" : "roles"}
-                </span>
-              </div>
-
-              <div className="space-y-10 max-w-[1100px]">
-                {company.roles.map((role) => (
-                  <article
-                    key={role.title}
-                    className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-3 md:gap-10"
+      {/* TOOLS & KIT */}
+      <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-12 md:pb-16">
+        <h2 className="font-display text-2xl md:text-3xl mb-6 md:mb-8 border-b border-[var(--color-line)] pb-3">
+          Tools & Kit
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+          {TOOLS_GROUPS.map((g) => (
+            <div key={g.label}>
+              <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-3">
+                {g.label}
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {g.items.map((item) => (
+                  <li
+                    key={item}
+                    className="rounded-full border border-[var(--color-line)] bg-[var(--color-bg-soft)] px-3 py-1 text-[0.75rem] text-[var(--color-ink)]"
                   >
-                    <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] md:pt-1">
-                      {role.start} — {role.end}
-                    </p>
-                    <div>
-                      <h3 className="font-display text-lg md:text-xl text-[var(--color-ink)] leading-tight mb-3">
-                        {role.title}
-                      </h3>
-                      {role.description ? (
-                        <p className="text-[var(--color-ink-soft)] leading-relaxed text-[0.95rem]">
-                          {role.description}
-                        </p>
-                      ) : null}
-                    </div>
-                  </article>
+                    {item}
+                  </li>
                 ))}
-              </div>
-
-              {companyProjects.length > 0 ? (
-                <ProjectCarousel
-                  projects={companyProjects}
-                  label="Work from this role"
-                />
-              ) : null}
-
-              {(() => {
-                const tools = software.filter((s) =>
-                  s.cvCompanies?.includes(company.id)
-                );
-                if (tools.length === 0) return null;
-                return (
-                  <div className="mt-10 md:mt-12">
-                    <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-4">
-                      Software used
-                    </span>
-                    <ul className="flex flex-wrap gap-x-6 gap-y-2 max-w-[1100px] text-[0.95rem] text-[var(--color-ink)]">
-                      {tools.map((s) => (
-                        <li key={s._id}>{s.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })()}
+              </ul>
             </div>
-          );
-        })}
+          ))}
+        </div>
+        <div className="mt-6 md:mt-8 flex flex-wrap gap-x-8 gap-y-3 text-[0.7rem] tracking-[0.22em] uppercase">
+          <Link
+            href="/equipment"
+            className="border-b border-[var(--color-ink)] pb-1 hover:text-[var(--color-mute)] hover:border-[var(--color-mute)] transition-colors"
+          >
+            Full equipment list →
+          </Link>
+          <Link
+            href="/software"
+            className="border-b border-[var(--color-ink)] pb-1 hover:text-[var(--color-mute)] hover:border-[var(--color-mute)] transition-colors"
+          >
+            Full software list →
+          </Link>
+        </div>
       </section>
-    </>
-  );
-}
 
-function ProjectCarousel({
-  projects,
-  label,
-}: {
-  projects: ProjectSummary[];
-  label: string;
-}) {
-  return (
-    <div className="mt-10 md:mt-12">
-      <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-4">
-        {label}
-      </span>
-      <div className="overflow-x-auto -mx-6 md:-mx-10 px-6 md:px-10 pb-2">
-        <ul className="flex gap-4 md:gap-5 min-w-max">
-          {projects.map((p) => (
-            <li key={p._id} className="w-[200px] flex-shrink-0">
-              <MiniProjectCard project={p} />
+      {/* SOME NUMBERS */}
+      <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-12 md:pb-16">
+        <h2 className="font-display text-2xl md:text-3xl mb-6 md:mb-8 border-b border-[var(--color-line)] pb-3">
+          Some numbers
+        </h2>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+          {STATS.map((s) => (
+            <li key={s.headline + s.body}>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span
+                  className={
+                    s.sublabel
+                      ? "font-display text-5xl md:text-6xl leading-none"
+                      : "font-display text-2xl md:text-3xl leading-tight"
+                  }
+                >
+                  {s.headline}
+                </span>
+                {s.sublabel ? (
+                  <span className="font-display text-base md:text-lg text-[var(--color-mute)]">
+                    {s.sublabel}
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-3 text-sm text-[var(--color-ink-soft)] leading-relaxed max-w-[28ch]">
+                {s.body}
+              </p>
             </li>
           ))}
         </ul>
-      </div>
-    </div>
-  );
-}
+      </section>
 
-function MiniProjectCard({ project }: { project: ProjectSummary }) {
-  return (
-    <Link
-      href={`/portfolio/${project.slug}`}
-      className="group block"
-    >
-      <div className="relative aspect-[16/9] overflow-hidden bg-[var(--color-bg-soft)] border border-[var(--color-line)]">
-        <SanityImage
-          image={project.coverImage}
-          sizes="200px"
-          className="object-cover object-top img-hover"
-        />
-      </div>
-      <h4 className="mt-2 font-display text-sm text-[var(--color-ink)] leading-tight">
-        {project.title}
-      </h4>
-      {project.year ? (
-        <p className="mt-0.5 text-[0.6rem] tracking-[0.22em] uppercase text-[var(--color-mute)]">
-          {project.year}
-        </p>
-      ) : null}
-    </Link>
+      <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-16 md:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-12 lg:gap-16">
+          <div className="min-w-0">
+            <h2 className="font-display text-2xl md:text-3xl mb-6 md:mb-8 border-b border-[var(--color-line)] pb-3">
+              Experience
+            </h2>
+            <ol className="space-y-10">
+              {flatRoles.map((r) => {
+                const showProjects = !seenCompanies.has(r.companyId);
+                if (showProjects) seenCompanies.add(r.companyId);
+                const roleProjects = showProjects
+                  ? projects.filter((p) => p.cvCompanies?.includes(r.companyId))
+                  : [];
+                return (
+                  <li
+                    key={`${r.companyId}-${r.title}-${r.start}`}
+                    className="grid grid-cols-[88px_1fr] md:grid-cols-[110px_1fr] gap-4 md:gap-6 items-start"
+                  >
+                    <span className="inline-flex items-center justify-center px-2 py-1 rounded-md border border-[var(--color-line)] bg-[var(--color-bg-soft)] text-[0.7rem] tracking-[0.18em] uppercase text-[var(--color-ink)] whitespace-nowrap">
+                      {shortYearRange(r.start, r.end)}
+                    </span>
+                    <div>
+                      <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                        {r.companyName}
+                      </p>
+                      <h3 className="font-display text-lg md:text-xl text-[var(--color-ink)] leading-tight">
+                        {r.title}
+                      </h3>
+                      <p className="text-[0.7rem] tracking-[0.18em] uppercase text-[var(--color-mute)] mt-1">
+                        {r.start} — {r.end}
+                      </p>
+                      {r.description ? (
+                        <p className="text-[var(--color-ink-soft)] leading-relaxed text-sm mt-3">
+                          {r.description}
+                        </p>
+                      ) : null}
+                      {roleProjects.length > 0 ? (
+                        <RoleProjects
+                          projects={roleProjects}
+                          companyName={r.companyName}
+                        />
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <div>
+            <h2 className="font-display text-2xl md:text-3xl mb-6 md:mb-8 border-b border-[var(--color-line)] pb-3">
+              Education
+            </h2>
+            {education.length === 0 ? (
+              <p className="font-serif italic text-[var(--color-mute)]">
+                Add an education entry in the Studio.
+              </p>
+            ) : (
+              <ol className="space-y-6">
+                {education.map((e) => (
+                  <li
+                    key={e._id}
+                    className="grid grid-cols-[88px_1fr] md:grid-cols-[110px_1fr] gap-4 md:gap-6 items-start"
+                  >
+                    <span className="inline-flex items-center justify-center px-2 py-1 rounded-md border border-[var(--color-line)] bg-[var(--color-bg-soft)] text-[0.7rem] tracking-[0.18em] uppercase text-[var(--color-ink)] whitespace-nowrap">
+                      {e.endYear ? `${e.startYear} – ${e.endYear}` : `${e.startYear} – Now`}
+                    </span>
+                    <div>
+                      <p className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                        {e.institution}
+                      </p>
+                      <h3 className="font-display text-lg md:text-xl text-[var(--color-ink)] leading-tight">
+                        {e.qualification}
+                      </h3>
+                      {e.description ? (
+                        <p className="text-[var(--color-ink-soft)] leading-relaxed text-[0.95rem] mt-2">
+                          {e.description}
+                        </p>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      </section>
+
+    </>
   );
 }

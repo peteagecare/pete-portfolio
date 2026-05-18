@@ -1,22 +1,34 @@
 import type { Metadata } from "next";
 import { sanityFetch } from "@/sanity/lib/fetch";
-import { siteSettingsQuery } from "@/sanity/queries";
-import type { SiteSettings } from "@/sanity/types";
+import { siteSettingsQuery, latestProjectsQuery } from "@/sanity/queries";
+import type { SiteSettings, ProjectSummary } from "@/sanity/types";
 import SanityImage from "@/components/SanityImage";
 import PortableText from "@/components/PortableText";
 import Reveal from "@/components/Reveal";
+import RecentProjectsCarousel from "@/components/RecentProjectsCarousel";
 
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Pete Jenkins — Nottingham-based photographer, filmmaker and web developer. Currently Head of Marketing at Age Care Bathrooms.",
+    "Pete Jenkins — Nottingham-based creative working across video, photography, design and web.",
+  openGraph: {
+    description:
+      "Pete Jenkins — Nottingham-based creative working across video, photography, design and web.",
+  },
 };
 
 export default async function AboutPage() {
-  const settings = await sanityFetch<SiteSettings | null>({
-    query: siteSettingsQuery,
-    tags: ["siteSettings"],
-  });
+  const [settings, latestRaw] = await Promise.all([
+    sanityFetch<SiteSettings | null>({
+      query: siteSettingsQuery,
+      tags: ["siteSettings"],
+    }),
+    sanityFetch<ProjectSummary[] | null>({
+      query: latestProjectsQuery,
+      tags: ["project"],
+    }),
+  ]);
+  const latest = latestRaw ?? [];
 
   return (
     <>
@@ -24,12 +36,8 @@ export default async function AboutPage() {
         <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-6">
           About
         </span>
-        <h1 className="font-display text-[clamp(3rem,9vw,8rem)] leading-[0.9] max-w-[14ch]">
-          Pete Jenkins,
-          <br />
-          <span className="font-serif italic font-normal normal-case">
-            in three minutes.
-          </span>
+        <h1 className="font-display text-[clamp(2rem,5vw,4rem)] leading-[1.05] max-w-[20ch]">
+          A bit about me
         </h1>
       </section>
 
@@ -52,28 +60,30 @@ export default async function AboutPage() {
             <DefaultAboutCopy />
           )}
 
-          <div className="mt-16 grid sm:grid-cols-2 gap-10 border-t border-[var(--color-line)] pt-10">
-            <div>
-              <h2 className="font-display text-xl mb-4">What I shoot</h2>
-              <ul className="space-y-2 text-[var(--color-ink-soft)]">
-                <li>Editorial portraits</li>
-                <li>Brand stills &amp; product</li>
-                <li>Weddings &amp; events</li>
-                <li>Documentary &amp; travel</li>
-              </ul>
-            </div>
-            <div>
-              <h2 className="font-display text-xl mb-4">What I build</h2>
-              <ul className="space-y-2 text-[var(--color-ink-soft)]">
-                <li>Marketing sites (WordPress)</li>
-                <li>Headless builds (Next.js + Sanity)</li>
-                <li>Lead engines &amp; landing pages</li>
-                <li>Performance &amp; SEO retrofits</li>
-              </ul>
-            </div>
+          <div className="mt-16 border-t border-[var(--color-line)] pt-10">
+            <h2 className="font-display text-xl mb-4">Get in touch</h2>
+            <ul className="space-y-2 text-[var(--color-ink-soft)]">
+              <li>
+                <a href="tel:+447568945934" className="hover:text-[var(--color-ink)] transition-colors">
+                  07568 945934
+                </a>
+              </li>
+              <li>
+                <a href="mailto:petejenkinss@hotmail.com" className="hover:text-[var(--color-ink)] transition-colors">
+                  petejenkinss@hotmail.com
+                </a>
+              </li>
+              <li>2 Truman Street</li>
+              <li>Kimberley, Nottingham</li>
+              <li>NG16 2HA</li>
+            </ul>
           </div>
         </Reveal>
       </section>
+
+      <div className="border-t border-[var(--color-line)]">
+        <RecentProjectsCarousel projects={latest} />
+      </div>
     </>
   );
 }
@@ -82,29 +92,38 @@ function DefaultAboutCopy() {
   return (
     <div className="prose-editorial">
       <p className="font-serif italic text-2xl text-[var(--color-ink)] !leading-snug !mb-10">
-        I&apos;m based in Nottingham, working across photography, video and
-        the web. I shoot, I edit, I build.
+        I&apos;m a creative based in Nottingham, working across video,
+        photography, design and web. I shoot, I edit, I build, and I like
+        that no two days look the same.
       </p>
       <p>
-        I picked up a point-and-shoot at 14 and never really put it down.
-        Twenty-odd years later I&apos;m still doing the same thing, just with
-        better kit.
+        My route in was music, not film school. I did a BA (Hons) in Music
+        Production at York St John, started teaching with Rocksteady, then
+        set up my own business, The Musical Me, where we launched World
+        Music Day for primary schools across the UK. Around the same time
+        my friend Harry gave me a start teaching guitar at Lime Tree Music
+        Centre in Matlock. When he moved on to start a family, Corinne and
+        I bought it off him and grew it into a thriving music centre
+        that&apos;s still going strong.
       </p>
       <p>
-        Today I&apos;m Head of Marketing at Age Care Bathrooms, running the
-        full marketing function: paid media, SEO, CRM, content, and the data
-        work that ties them together. The marketing job means I think about
-        audience and conversion alongside the craft.
+        Wanting a new kind of challenge, I ended up at Age Care Bathrooms,
+        freelance two days a week alongside an outside agency. A few years
+        in, Sam (the owner) and I made the call to bring it all in-house. I
+        took the lead and we&apos;ve built a small in-house content team.
+        These days I&apos;m making most of the content that goes out,
+        video, photography, design, print, web, copy. Bit of marketing
+        strategy on the side.
       </p>
       <p>
-        Outside that I shoot weddings and editorial portraits across the
-        Midlands and London, and build sites for friends, agencies and small
-        brands. Owner-operated when the brief asks for it, with a small
-        regular crew when it doesn&apos;t.
-      </p>
-      <p>
-        If you&apos;ve got something in mind,{" "}
-        <a href="/contact">drop me a line</a>.
+        Photography crept in here too. We bought our first DSLR at Age Care
+        for product and project shots, and somewhere between learning the
+        kit properly and figuring out what made a bathroom actually look
+        good in a frame, I fell for it. These days the camera comes with me
+        on walks as well, mostly around Nottingham and the Peaks, mostly
+        places I&apos;d want to visit anyway. Architecture, landscape,
+        lifestyle, whatever catches my eye when I&apos;m not really looking
+        for it.
       </p>
     </div>
   );

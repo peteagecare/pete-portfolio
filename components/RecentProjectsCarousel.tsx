@@ -4,23 +4,35 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import SanityImage from "./SanityImage";
-import type { ProjectSummary } from "@/sanity/types";
+import type { ProjectSummary, ThumbnailOrientation } from "@/sanity/types";
 
-type Filter = "all" | "design" | "photo" | "video" | "web";
+type Filter = "all" | "social" | "design" | "photo" | "video" | "web";
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "design", label: "Design" },
-  { key: "photo", label: "Photography" },
+  { key: "social", label: "Social" },
   { key: "video", label: "Videography" },
+  { key: "photo", label: "Photography" },
+  { key: "design", label: "Design" },
   { key: "web", label: "Web" },
 ];
 
 const CATEGORY_LABEL: Record<string, string> = {
+  social: "Social",
   photo: "Photography",
   video: "Videography",
   web: "Web",
   design: "Design",
+};
+
+// All tiles share the same image height per breakpoint; width derives from
+// the project's thumbnailOrientation so the row aligns on a top baseline
+// and never leaves blank gaps inside a card.
+const TILE_IMAGE_HEIGHT = "h-[220px] sm:h-[260px] md:h-[300px]";
+const TILE_WIDTH: Record<ThumbnailOrientation, string> = {
+  portrait: "w-[124px] sm:w-[146px] md:w-[169px]", // 9:16
+  landscape: "w-[293px] sm:w-[347px] md:w-[400px]", // 4:3
+  square: "w-[220px] sm:w-[260px] md:w-[300px]", // 1:1
 };
 
 export default function RecentProjectsCarousel({
@@ -99,7 +111,7 @@ export default function RecentProjectsCarousel({
             type="button"
             onClick={() => scrollByCard(-1)}
             aria-label="Scroll left"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 hidden md:flex w-10 h-10 rounded-full bg-white border border-[var(--color-line)] shadow-md items-center justify-center hover:shadow-lg transition-shadow"
+            className="absolute left-0 top-[40%] -translate-y-1/2 -translate-x-1/2 z-10 hidden md:flex w-10 h-10 rounded-full bg-white border border-[var(--color-line)] shadow-md items-center justify-center hover:shadow-lg transition-shadow"
           >
             <span aria-hidden>←</span>
           </button>
@@ -107,7 +119,7 @@ export default function RecentProjectsCarousel({
             type="button"
             onClick={() => scrollByCard(1)}
             aria-label="Scroll right"
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 hidden md:flex w-10 h-10 rounded-full bg-white border border-[var(--color-line)] shadow-md items-center justify-center hover:shadow-lg transition-shadow"
+            className="absolute right-0 top-[40%] -translate-y-1/2 translate-x-1/2 z-10 hidden md:flex w-10 h-10 rounded-full bg-white border border-[var(--color-line)] shadow-md items-center justify-center hover:shadow-lg transition-shadow"
           >
             <span aria-hidden>→</span>
           </button>
@@ -115,33 +127,45 @@ export default function RecentProjectsCarousel({
           {filtered.length > 0 ? (
             <div
               ref={scrollerRef}
-              className="no-scrollbar overflow-x-auto flex gap-4 md:gap-5 snap-x snap-mandatory pb-2 -mx-1 px-1"
+              className="no-scrollbar overflow-x-auto flex items-start gap-4 md:gap-5 snap-x snap-mandatory pb-2 -mx-1 px-1"
             >
-              {filtered.map((p) => (
-                <Link
-                  key={p._id}
-                  data-card
-                  href={`/portfolio/${p.slug}`}
-                  className="group flex-shrink-0 w-[calc(50%-0.5rem)] md:w-[calc(25%-0.9375rem)] snap-start block rounded-2xl overflow-hidden bg-[var(--color-bg-soft)] border border-[var(--color-line)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-shadow"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <SanityImage
-                      image={p.coverImage}
-                      sizes="(min-width: 768px) 25vw, 50vw"
-                      className="object-cover img-hover"
-                    />
-                  </div>
-                  <div className="px-3 py-3 md:px-4 md:py-3">
-                    <span className="block text-[0.55rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
-                      {CATEGORY_LABEL[p.category] ?? p.category}
-                      {p.year ? ` · ${p.year}` : ""}
-                    </span>
-                    <h3 className="font-display text-sm md:text-base text-[var(--color-ink)] leading-tight line-clamp-2">
-                      {p.title}
-                    </h3>
-                  </div>
-                </Link>
-              ))}
+              {filtered.map((p) => {
+                const orientation: ThumbnailOrientation =
+                  p.thumbnailOrientation ?? "landscape";
+                return (
+                  <Link
+                    key={p._id}
+                    data-card
+                    href={`/portfolio/${p.slug}`}
+                    className={clsx(
+                      "group flex-shrink-0 snap-start block rounded-2xl overflow-hidden bg-[var(--color-bg-soft)] border border-[var(--color-line)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] transition-shadow",
+                      TILE_WIDTH[orientation],
+                    )}
+                  >
+                    <div
+                      className={clsx(
+                        "relative overflow-hidden w-full",
+                        TILE_IMAGE_HEIGHT,
+                      )}
+                    >
+                      <SanityImage
+                        image={p.coverImage}
+                        sizes="(min-width: 768px) 25vw, 60vw"
+                        className="object-cover img-hover"
+                      />
+                    </div>
+                    <div className="px-3 py-3 md:px-4 md:py-3 h-[84px] md:h-[92px] flex flex-col">
+                      <span className="block text-[0.55rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                        {CATEGORY_LABEL[p.category] ?? p.category}
+                        {p.year ? ` · ${p.year}` : ""}
+                      </span>
+                      <h3 className="font-display text-sm md:text-base text-[var(--color-ink)] leading-tight line-clamp-2">
+                        {p.title}
+                      </h3>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <p className="text-[var(--color-mute)] font-serif italic py-8">

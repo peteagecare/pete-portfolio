@@ -10,10 +10,12 @@ import {
 import type { Project } from "@/sanity/types";
 import SanityImage from "@/components/SanityImage";
 import PortableText from "@/components/PortableText";
-import VideoEmbed from "@/components/VideoEmbed";
+import VideoCarousel from "@/components/VideoCarousel";
+import VideoLightboxTile from "@/components/VideoLightboxTile";
 import ProjectGallery from "@/components/ProjectGallery";
 
 const CATEGORY_LABEL: Record<string, string> = {
+  social: "Social",
   photo: "Photography",
   video: "Videography",
   web: "Web",
@@ -65,23 +67,61 @@ export default async function ProjectPage({
 
   if (!project) notFound();
 
+  const orientation = project.videoOrientation ?? "horizontal";
+  const galleryVideos = (project.videoGallery ?? []).map((v, i) => ({
+    url: v.url,
+    title: v.title,
+    description: v.description,
+    numberLabel: `No. ${String(i + 1).padStart(2, "0")}`,
+  }));
+  const carouselItems = project.videoUrl
+    ? [
+        {
+          url: project.videoUrl,
+          title: project.title,
+          numberLabel: "Featured",
+        },
+        ...galleryVideos,
+      ]
+    : galleryVideos;
+
+  const hasVideoCarousel = carouselItems.length > 1;
+  const hasSingleVideo = !hasVideoCarousel && carouselItems.length === 1;
+
+  const coverIsAvailable = Boolean(project.coverImage?.asset);
+  const showVideoInHero = hasSingleVideo;
+  const showCoverInHero = coverIsAvailable && !showVideoInHero;
+  const heroHasMedia = showVideoInHero || showCoverInHero;
+
+  const coverAspectClass =
+    project.thumbnailOrientation === "portrait"
+      ? "aspect-[9/16] max-w-[240px] md:max-w-[260px] mx-auto"
+      : project.thumbnailOrientation === "square"
+        ? "aspect-square max-w-[420px] mx-auto"
+        : "aspect-[16/9]";
+
+  const heroVideoWrapClass =
+    orientation === "vertical"
+      ? "max-w-[240px] md:max-w-[260px] mx-auto"
+      : "max-w-full";
+
   return (
     <article>
-      <section className="mx-auto max-w-[1600px] px-6 md:px-10 pt-32 md:pt-40 pb-16 md:pb-24 grid md:grid-cols-12 gap-10 md:gap-16">
-        <aside className="md:col-span-5">
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--color-bg-soft)] border border-[var(--color-line)] mb-10">
-            <SanityImage
-              image={project.coverImage}
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              priority
-              className="object-cover object-top"
-            />
-          </div>
-
-          <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-6">
+      {/* HERO — left: title, description, meta table | right: cover image */}
+      <section className="pt-24 md:pt-28 pb-4 md:pb-6 mx-auto max-w-[1600px] px-6 md:px-10 grid md:grid-cols-12 gap-6 md:gap-10">
+        <div className={heroHasMedia ? "md:col-span-7" : "md:col-span-12"}>
+          <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-2">
             {CATEGORY_LABEL[project.category] ?? project.category}
           </span>
-          <dl className="space-y-5 text-sm border-t border-[var(--color-line)] pt-6">
+          <h1 className="font-display text-[clamp(1.6rem,3vw,2.5rem)] leading-[0.98] mb-3 max-w-[22ch]">
+            {project.title}
+          </h1>
+
+          <div className="text-[var(--color-ink-soft)] leading-snug text-[0.9rem] md:text-[0.95rem] max-w-prose">
+            <PortableText value={project.description} />
+          </div>
+
+          <dl className="mt-5 space-y-2.5 text-sm border-t border-[var(--color-line)] pt-4 max-w-prose">
             {project.year ? (
               <Meta label="Year" value={String(project.year)} />
             ) : null}
@@ -115,46 +155,52 @@ export default async function ProjectPage({
               />
             ) : null}
           </dl>
-        </aside>
-
-        <div className="md:col-span-7">
-          <h1 className="font-display text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.95] mb-10">
-            {project.title}
-          </h1>
-
-          {project.videoUrl ? (
-            <div className="mb-12">
-              <VideoEmbed url={project.videoUrl} />
-            </div>
-          ) : null}
-
-          <PortableText value={project.description} />
-
-          {project.videoGallery && project.videoGallery.length > 0 ? (
-            <div className="mt-12 space-y-12">
-              {project.videoGallery.map((v, i) => (
-                <div key={i}>
-                  {v.title ? (
-                    <h3 className="font-display text-xl md:text-2xl mb-4">
-                      {v.title}
-                    </h3>
-                  ) : null}
-                  <VideoEmbed url={v.url} />
-                  {v.description ? (
-                    <p className="mt-4 text-[var(--color-ink-soft)] leading-relaxed text-[0.95rem]">
-                      {v.description}
-                    </p>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          ) : null}
-
-          {project.gallery && project.gallery.length > 0 ? (
-            <ProjectGallery images={project.gallery} />
-          ) : null}
         </div>
+
+        {showVideoInHero ? (
+          <div className="md:col-span-5">
+            <div className={heroVideoWrapClass}>
+              <VideoLightboxTile
+                url={carouselItems[0].url}
+                orientation={orientation}
+                showCaption={false}
+              />
+            </div>
+          </div>
+        ) : showCoverInHero ? (
+          <div className="md:col-span-5">
+            <div
+              className={`relative w-full overflow-hidden bg-[var(--color-bg-soft)] border border-[var(--color-line)] ${coverAspectClass}`}
+            >
+              <SanityImage
+                image={project.coverImage}
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                priority
+                className="object-cover object-top"
+              />
+            </div>
+          </div>
+        ) : null}
       </section>
+
+      {/* VIDEO ROW — smaller Netflix-style tiles, click opens lightbox */}
+      {hasVideoCarousel ? (
+        <section className="mb-10 md:mb-14">
+          <VideoCarousel items={carouselItems} orientation={orientation} />
+        </section>
+      ) : null}
+
+      {project.gallery && project.gallery.length > 0 ? (
+        project.category === "photo" ? (
+          <section className="mb-10 md:mb-14">
+            <ProjectGallery images={project.gallery} layout="scroll" />
+          </section>
+        ) : (
+          <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-16 md:pb-24">
+            <ProjectGallery images={project.gallery} />
+          </section>
+        )
+      ) : null}
 
       <div className="border-t border-[var(--color-line)] mx-auto max-w-[1600px] px-6 md:px-10 py-12 flex justify-between items-center">
         <Link
@@ -182,11 +228,11 @@ function Meta({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex justify-between items-baseline gap-4 border-b border-[var(--color-line)] pb-3">
+    <div className="flex justify-between items-baseline gap-4 border-b border-[var(--color-line)] pb-2">
       <dt className="text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)]">
         {label}
       </dt>
-      <dd className="text-[var(--color-ink)] text-right">{value}</dd>
+      <dd className="text-[var(--color-ink)] text-right text-sm">{value}</dd>
     </div>
   );
 }

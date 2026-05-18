@@ -41,14 +41,14 @@ export async function POST(req: Request) {
   //   import { Resend } from "resend";
   //   const resend = new Resend(process.env.RESEND_API_KEY);
   //   await resend.emails.send({
-  //     from: "Portfolio <noreply@mail.petejenkins.uk>",
+  //     from: "Portfolio <noreply@mail.petejenkins.co.uk>",
   //     to: process.env.CONTACT_TO_EMAIL!,
   //     replyTo: parsed.data.email,
   //     subject: `New ${parsed.data.opportunity} enquiry from ${parsed.data.name}`,
   //     text: parsed.data.message,
   //   });
   //
-  // The sending domain mail.petejenkins.uk needs SPF/DKIM verified in
+  // The sending domain mail.petejenkins.co.uk needs SPF/DKIM verified in
   // Resend before it'll deliver — same drill as your other Resend project.
   // ────────────────────────────────────────────────────────────────────────
 

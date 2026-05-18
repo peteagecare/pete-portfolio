@@ -21,20 +21,62 @@ export const projectSchema = defineType({
       type: "string",
       options: {
         list: [
-          { title: "Photography", value: "photo" },
+          { title: "Social", value: "social" },
           { title: "Videography", value: "video" },
-          { title: "Web", value: "web" },
+          { title: "Photography", value: "photo" },
           { title: "Design", value: "design" },
+          { title: "Web", value: "web" },
         ],
         layout: "radio",
       },
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "videoOrientation",
+      title: "Video orientation",
+      description:
+        "Horizontal (16:9) for landscape video, vertical (9:16) for Reels / TikTok / shorts.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Horizontal (16:9)", value: "horizontal" },
+          { title: "Vertical (9:16)", value: "vertical" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "horizontal",
+      hidden: ({ document }) =>
+        document?.category !== "video" && document?.category !== "social",
+    }),
+    defineField({
+      name: "thumbnailOrientation",
+      title: "Thumbnail orientation",
+      description:
+        "Controls how the project card renders in grids. Use portrait for vertical / social work.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Landscape (16:9)", value: "landscape" },
+          { title: "Portrait (9:16)", value: "portrait" },
+          { title: "Square (1:1)", value: "square" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "landscape",
+    }),
+    defineField({
       name: "featured",
       title: "Show on homepage",
       type: "boolean",
       initialValue: false,
+    }),
+    defineField({
+      name: "featuredOrder",
+      title: "Homepage order (optional)",
+      description:
+        "Pin this project near the top of the homepage Recent Projects grid. Lower numbers appear first (1, 2, 3...). Leave blank to sort by year as normal.",
+      type: "number",
+      validation: (rule) => rule.integer().min(1),
     }),
     defineField({
       name: "cvCompanies",

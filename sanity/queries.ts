@@ -39,11 +39,16 @@ const projectCardFields = `
   "slug": slug.current,
   category,
   year,
+  thumbnailOrientation,
   "coverImage": coverImage{ ${imageFields} }
 `;
 
 export const latestProjectsQuery = groq`
-  *[_type == "project"] | order(year desc, _createdAt desc) [0...24]{
+  *[_type == "project"] | order(
+    coalesce(featuredOrder, 9999) asc,
+    year desc,
+    _createdAt desc
+  ) [0...24]{
     ${projectCardFields}
   }
 `;
@@ -58,6 +63,7 @@ export const heroPhotosQuery = groq`
 
 export const homepageWorkByCategoryQuery = groq`
   {
+    "social": *[_type == "project" && category == "social"] | order(year desc, _createdAt desc) [0...20]{ ${projectCardFields} },
     "photo":  *[_type == "project" && category == "photo"]  | order(year desc, _createdAt desc) [0...20]{ ${projectCardFields} },
     "video":  *[_type == "project" && category == "video"]  | order(year desc, _createdAt desc) [0...20]{ ${projectCardFields} },
     "web":    *[_type == "project" && category == "web"]    | order(year desc, _createdAt desc) [0...20]{ ${projectCardFields} },
@@ -74,6 +80,7 @@ export const allProjectsQuery = groq`
     year,
     role,
     client,
+    thumbnailOrientation,
     "coverImage": coverImage{ ${imageFields} }
   }
 `;
@@ -91,6 +98,8 @@ export const projectBySlugQuery = groq`
     externalUrl,
     videoUrl,
     videoGallery,
+    videoOrientation,
+    thumbnailOrientation,
     "coverImage": coverImage{ ${imageFields} },
     "gallery": gallery[]{ ${imageFields} },
     "software": software[]->{ _id, name }
@@ -133,6 +142,12 @@ export const allServicesQuery = groq`
   }
 `;
 
+export const allEducationQuery = groq`
+  *[_type == "education"] | order(startYear desc, order asc){
+    _id, institution, qualification, startYear, endYear, description, order
+  }
+`;
+
 const equipmentFields = `
   _id, name, brand, description, quantity, category, order,
   "image": image{ ${imageFields} }
@@ -149,29 +164,3 @@ export const equipmentByCategoryQuery = groq`
   }
 `;
 
-export const allJournalPostsQuery = groq`
-  *[_type == "journalPost"] | order(publishedAt desc){
-    _id,
-    title,
-    "slug": slug.current,
-    excerpt,
-    publishedAt,
-    "coverImage": coverImage{ ${imageFields} }
-  }
-`;
-
-export const journalPostBySlugQuery = groq`
-  *[_type == "journalPost" && slug.current == $slug][0]{
-    _id,
-    title,
-    "slug": slug.current,
-    excerpt,
-    publishedAt,
-    body,
-    "coverImage": coverImage{ ${imageFields} }
-  }
-`;
-
-export const journalSlugsQuery = groq`
-  *[_type == "journalPost" && defined(slug.current)][].slug.current
-`;

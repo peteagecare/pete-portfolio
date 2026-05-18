@@ -11,7 +11,6 @@ const NAV = [
   { href: "/equipment", label: "Equipment" },
   { href: "/cv", label: "CV" },
   { href: "/software", label: "Software" },
-  { href: "/journal", label: "Journal" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -41,7 +40,7 @@ export default function Header() {
           : "bg-transparent text-white"
       )}
     >
-      <div className="mx-auto max-w-[1600px] px-6 md:px-10 py-5 flex items-center justify-between">
+      <div className="mx-auto max-w-[1600px] px-6 md:px-10 pt-7 pb-5 flex items-center justify-between">
         <Link href="/" className="group" onClick={() => setOpen(false)}>
           <span className="block font-serif italic text-[1.5rem] leading-none text-current">
             Pete Jenkins
@@ -52,7 +51,7 @@ export default function Header() {
               solid ? "text-[var(--color-mute)]" : "text-white/75",
             )}
           >
-            Creative — Photo · Video · Web
+            Social-first · Video · Photo · Motion · Web
           </span>
         </Link>
 

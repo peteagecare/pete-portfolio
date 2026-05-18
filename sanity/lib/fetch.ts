@@ -20,7 +20,13 @@ export async function sanityFetch<T>({
   params?: QueryParams;
   tags?: string[];
 }): Promise<T> {
-  const { isEnabled: isDraft } = await draftMode();
+  const { isEnabled: cookieDraft } = await draftMode();
+  // In local dev, always read the latest Sanity content (drafts or published,
+  // whichever is newer) so edits in Studio appear without a server restart.
+  // Requires SANITY_API_READ_TOKEN; falls back to the cached client otherwise.
+  const isDev = process.env.NODE_ENV === "development";
+  const hasReadToken = Boolean(process.env.SANITY_API_READ_TOKEN);
+  const isDraft = cookieDraft || (isDev && hasReadToken);
   const c = isDraft ? draftClient : client;
   try {
     return await c.fetch<T>(query, params, {

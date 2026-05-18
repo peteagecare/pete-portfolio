@@ -8,7 +8,7 @@ import { parseBody } from "next-sanity/webhook";
  *   manage.sanity.io → API → Webhooks → Add
  *   URL: https://<your-domain>/api/revalidate
  *   Trigger: Create / Update / Delete
- *   Filter: _type == "project" || _type == "journalPost" || _type == "service" || _type == "siteSettings"
+ *   Filter: _type == "project" || _type == "service" || _type == "siteSettings"
  *   Projection: { "_type": _type }
  *   Secret: matches SANITY_REVALIDATE_SECRET in this app's env
  */

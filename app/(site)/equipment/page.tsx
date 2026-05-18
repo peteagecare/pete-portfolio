@@ -11,7 +11,11 @@ import SanityImage from "@/components/SanityImage";
 export const metadata: Metadata = {
   title: "Equipment",
   description:
-    "The cameras, lenses and support kit Pete Jenkins works with.",
+    "The cameras, lenses and support kit I work with. Sony A7 V, A6700, Sigma Art glass, DJI RS 3.",
+  openGraph: {
+    description:
+      "The cameras, lenses and support kit I work with. Sony A7 V, A6700, Sigma Art glass, DJI RS 3.",
+  },
 };
 
 const CATEGORY_TITLES: Record<EquipmentCategory, string> = {
@@ -64,6 +68,12 @@ export default async function EquipmentPage() {
             with.
           </span>
         </h1>
+        <p className="max-w-[68ch] text-[var(--color-ink-soft)] leading-relaxed text-base md:text-[1.0625rem]">
+          Photography started as a necessity. Age Care Bathrooms needed
+          product shots and I was the one taking them. I bought my own A6700
+          a few weeks later and never put it down. Added the A7 V as my main
+          body and built the rest of the kit around it.
+        </p>
       </section>
 
       <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-24 md:pb-32">

@@ -1,7 +1,15 @@
 import type { PortableTextBlock } from "@portabletext/react";
 import type { SanityImage } from "./lib/image";
 
-export type ProjectCategory = "photo" | "video" | "web" | "design";
+export type ProjectCategory =
+  | "social"
+  | "photo"
+  | "video"
+  | "web"
+  | "design";
+
+export type VideoOrientation = "horizontal" | "vertical";
+export type ThumbnailOrientation = "landscape" | "portrait" | "square";
 
 export type ProjectSummary = {
   _id: string;
@@ -13,6 +21,7 @@ export type ProjectSummary = {
   client?: string;
   coverImage?: SanityImage;
   cvCompanies?: string[];
+  thumbnailOrientation?: ThumbnailOrientation;
 };
 
 export type VideoItem = {
@@ -28,6 +37,7 @@ export type Project = ProjectSummary & {
   videoGallery?: VideoItem[];
   gallery?: SanityImage[];
   software?: { _id: string; name: string }[];
+  videoOrientation?: VideoOrientation;
 };
 
 export type Software = {
@@ -43,6 +53,16 @@ export type Service = {
   title: string;
   description: string;
   order: number;
+};
+
+export type Education = {
+  _id: string;
+  institution: string;
+  qualification: string;
+  startYear: number;
+  endYear?: number;
+  description?: string;
+  order?: number;
 };
 
 export type EquipmentCategory =
@@ -71,19 +91,6 @@ export type EquipmentByCategory = {
   audio: Equipment[];
   lighting: Equipment[];
   accessory: Equipment[];
-};
-
-export type JournalPostSummary = {
-  _id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  publishedAt?: string;
-  coverImage?: SanityImage;
-};
-
-export type JournalPost = JournalPostSummary & {
-  body?: PortableTextBlock[];
 };
 
 export type SocialLink = { platform: string; url: string };

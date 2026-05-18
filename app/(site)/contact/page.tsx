@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { sanityFetch } from "@/sanity/lib/fetch";
-import { siteSettingsQuery } from "@/sanity/queries";
-import type { SiteSettings } from "@/sanity/types";
-import ContactForm from "@/components/ContactForm";
+import { Mail, Phone, MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -10,60 +7,107 @@ export const metadata: Metadata = {
     "Get in touch — Pete Jenkins, photographer, filmmaker and web developer, Nottingham UK.",
 };
 
-export default async function ContactPage() {
-  const settings = await sanityFetch<SiteSettings | null>({
-    query: siteSettingsQuery,
-    tags: ["siteSettings"],
-  });
+const ADDRESS_QUERY = "2+Truman+Street,+Kimberley,+Nottingham,+NG16+2HA";
+const MAP_EMBED = `https://www.openstreetmap.org/export/embed.html?bbox=-1.2747%2C52.9968%2C-1.2547%2C53.0068&layer=mapnik&marker=53.0018%2C-1.2647`;
+const MAP_LINK = `https://www.google.com/maps/search/?api=1&query=${ADDRESS_QUERY}`;
 
-  const email = settings?.contactEmail ?? "hello@petejenkins.uk";
-
+export default function ContactPage() {
   return (
-    <section className="pt-40 pb-24 md:pt-48 md:pb-32 mx-auto max-w-[1600px] px-6 md:px-10">
-      <div className="grid md:grid-cols-12 gap-10 md:gap-16">
-        <header className="md:col-span-5">
-          <span className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-6">
-            Contact
-          </span>
-          <h1 className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] mb-8">
-            Let&apos;s
-            <br />
-            <span className="font-serif italic font-normal normal-case">
-              talk.
-            </span>
-          </h1>
-          <p className="text-[var(--color-ink-soft)] leading-relaxed text-lg max-w-[40ch] mb-10">
-            Commissions, editorial work, creative roles, or just an
-            introduction.
-          </p>
-
-          <div className="space-y-5 text-sm">
-            <div>
-              <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-2">
-                Email
-              </span>
+    <section className="pt-32 md:pt-36 pb-24 md:pb-32 mx-auto max-w-[1600px] px-6 md:px-10">
+      <h1 className="block text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-8">
+        Contact
+      </h1>
+        <div className="grid md:grid-cols-12 gap-6 md:gap-8">
+          <ul className="md:col-span-5 grid gap-4 content-start">
+            <li>
               <a
-                href={`mailto:${email}`}
-                className="text-[var(--color-ink)] underline underline-offset-4"
+                href="tel:+447568945934"
+                className="group flex items-start gap-4 rounded-3xl border border-[var(--color-line)] bg-[var(--color-bg-soft)] p-6 md:p-7 hover:border-[var(--color-ink)] transition-colors"
               >
-                {email}
+                <span
+                  aria-hidden
+                  className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#1B2447] text-amber-300 flex-shrink-0"
+                >
+                  <Phone className="w-5 h-5" strokeWidth={2} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                    Phone
+                  </span>
+                  <span className="block font-display text-xl md:text-2xl text-[var(--color-ink)] group-hover:text-[var(--color-mute)] transition-colors">
+                    07568 945934
+                  </span>
+                </span>
               </a>
-            </div>
-            <div>
-              <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-2">
-                Based
-              </span>
-              <span className="text-[var(--color-ink)]">
-                Nottingham, working UK-wide
-              </span>
-            </div>
-          </div>
-        </header>
+            </li>
+            <li>
+              <a
+                href="mailto:petejenkinss@hotmail.com"
+                className="group flex items-start gap-4 rounded-3xl border border-[var(--color-line)] bg-[var(--color-bg-soft)] p-6 md:p-7 hover:border-[var(--color-ink)] transition-colors"
+              >
+                <span
+                  aria-hidden
+                  className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#1B2447] text-amber-300 flex-shrink-0"
+                >
+                  <Mail className="w-5 h-5" strokeWidth={2} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                    Email
+                  </span>
+                  <span className="block font-display text-xl md:text-2xl text-[var(--color-ink)] group-hover:text-[var(--color-mute)] transition-colors break-all">
+                    petejenkinss@hotmail.com
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={MAP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-4 rounded-3xl border border-[var(--color-line)] bg-[var(--color-bg-soft)] p-6 md:p-7 hover:border-[var(--color-ink)] transition-colors"
+              >
+                <span
+                  aria-hidden
+                  className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#1B2447] text-amber-300 flex-shrink-0"
+                >
+                  <MapPin className="w-5 h-5" strokeWidth={2} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-mute)] mb-1">
+                    Studio
+                  </span>
+                  <span className="block font-display text-xl md:text-2xl text-[var(--color-ink)] group-hover:text-[var(--color-mute)] transition-colors leading-tight">
+                    2 Truman Street
+                    <br />
+                    Kimberley, Nottingham
+                    <br />
+                    NG16 2HA
+                  </span>
+                </span>
+              </a>
+            </li>
+          </ul>
 
-        <div className="md:col-span-7 md:col-start-7">
-          <ContactForm />
+          <div className="md:col-span-7 relative aspect-[4/3] md:aspect-auto md:min-h-[480px] rounded-3xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-bg-soft)]">
+            <iframe
+              title="Map showing 2 Truman Street, Kimberley, Nottingham"
+              src={MAP_EMBED}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="absolute inset-0 w-full h-full border-0"
+            />
+            <a
+              href={MAP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-[var(--color-bg)] border border-[var(--color-line)] px-4 py-2 text-[0.65rem] tracking-[0.22em] uppercase text-[var(--color-ink)] shadow-md hover:border-[var(--color-ink)] transition-colors"
+            >
+              Open in maps ↗
+            </a>
+          </div>
         </div>
-      </div>
     </section>
   );
 }

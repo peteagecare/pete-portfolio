@@ -47,7 +47,7 @@ Visit:
 | `SANITY_API_WRITE_TOKEN` | Seed only | sanity.io/manage → API → Tokens (Editor) | `npm run seed` will refuse to run |
 | `SANITY_PREVIEW_SECRET` | Optional | Generate any random string | Studio "Preview" buttons return 401 |
 | `SANITY_REVALIDATE_SECRET` | Optional | Match the value in your Sanity webhook | Cache won't auto-invalidate on content changes; ISR still works |
-| `NEXT_PUBLIC_SITE_URL` | Recommended | `https://petejenkins.uk` (or your custom domain) | OG/sitemap absolute URLs default to a placeholder |
+| `NEXT_PUBLIC_SITE_URL` | Recommended | `https://petejenkins.co.uk` (or your custom domain) | OG/sitemap absolute URLs default to a placeholder |
 | `RESEND_API_KEY` | Future | resend.com → API Keys | Contact form logs to console only (TODO is in `app/api/contact/route.ts`) |
 | `CONTACT_TO_EMAIL` | Future | Your inbox | Same as above |
 

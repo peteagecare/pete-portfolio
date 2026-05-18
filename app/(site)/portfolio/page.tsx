@@ -10,7 +10,16 @@ export const metadata: Metadata = {
     "Selected photography, video, web and design projects by Pete Jenkins, Nottingham UK.",
 };
 
-export default async function PortfolioPage() {
+type SearchParams = Promise<{ category?: string | string[] }>;
+
+export default async function PortfolioPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { category } = await searchParams;
+  const initialCategory = Array.isArray(category) ? category[0] : category;
+
   const projects =
     (await sanityFetch<ProjectSummary[] | null>({
       query: allProjectsQuery,
@@ -32,7 +41,10 @@ export default async function PortfolioPage() {
       </section>
 
       <section className="mx-auto max-w-[1600px] px-6 md:px-10 pb-24 md:pb-32">
-        <PortfolioFilter projects={projects} />
+        <PortfolioFilter
+          projects={projects}
+          initialCategory={initialCategory}
+        />
       </section>
     </>
   );

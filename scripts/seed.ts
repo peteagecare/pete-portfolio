@@ -72,10 +72,6 @@ const STOCK = {
     "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1600&q=80",
   web1: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1600&q=80",
   web2: "https://images.unsplash.com/photo-1517292987719-0369a794ec0f?w=1600&q=80",
-  journal1:
-    "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=1600&q=80",
-  journal2:
-    "https://images.unsplash.com/photo-1493514789931-586cb221d7a7?w=1600&q=80",
 };
 
 async function block(text: string) {
@@ -121,7 +117,7 @@ async function run() {
         "Currently Head of Marketing at Age Care Bathrooms — paid, SEO, CRM, content.",
       heroImage: { ...images.hero, alt: "Coastal landscape at golden hour" },
       headshot: { ...images.headshot, alt: "Pete Jenkins, headshot" },
-      contactEmail: "hello@petejenkins.uk",
+      contactEmail: "hello@petejenkins.co.uk",
       socialLinks: [
         { _key: "ig", platform: "instagram", url: "https://instagram.com/" },
         {
@@ -272,27 +268,6 @@ async function run() {
       externalUrl: "https://example.com",
       desc: "Next.js + Sanity headless build for an indie coffee brand.",
     }),
-
-    // Journal
-    journal("journal-why-i-still-shoot-film", {
-      title: "Why I still shoot film",
-      excerpt:
-        "Notes on the discipline of 36 frames, and why the slow loop changes how I see in the off-weeks too.",
-      cover: {
-        ...images.journal1,
-        alt: "35mm camera on a wooden desk",
-      },
-      bodyText:
-        "Some thoughts on shooting film in 2025 — not as nostalgia, but as a discipline. The cost per frame matters. The waiting matters. Most of all, the way it slows your eye matters.",
-    }),
-    journal("journal-marketing-and-craft", {
-      title: "Marketing brain, craft hands",
-      excerpt:
-        "The trade-off I keep choosing — and why running a marketing function makes me a better photographer, not a worse one.",
-      cover: { ...images.journal2, alt: "Notebook on a window ledge" },
-      bodyText:
-        "Five years of running marketing teams hasn't dulled the craft side — it's sharpened it. Here's what I've learned about audience, intent, and what 'considered' really means in practice.",
-    }),
   ];
 
   const tx = client.transaction();
@@ -342,35 +317,6 @@ function project(
           },
         ]
       : [],
-  };
-}
-
-function journal(
-  id: string,
-  o: {
-    title: string;
-    excerpt: string;
-    cover: { _type: "image"; asset: any; alt: string };
-    bodyText: string;
-  }
-) {
-  return {
-    _id: id,
-    _type: "journalPost",
-    title: o.title,
-    slug: { _type: "slug", current: id.replace(/^journal-/, "") },
-    excerpt: o.excerpt,
-    publishedAt: new Date().toISOString(),
-    coverImage: o.cover,
-    body: [
-      {
-        _type: "block",
-        _key: "p1",
-        style: "normal",
-        children: [{ _type: "span", _key: "s1", text: o.bodyText, marks: [] }],
-        markDefs: [],
-      },
-    ],
   };
 }
 
